@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ISO 9001 儀器校驗管理 教學</title>
+<style>
+:root{
+  --blue:#2563EB;--bl:#DBEAFE;--bd:#1E40AF;
+  --green:#10B981;--gl:#D1FAE5;--gd:#065F46;
+  --orange:#F59E0B;--ol:#FEF3C7;--od:#92400E;
+  --red:#EF4444;--rl:#FEE2E2;
+  --purple:#7C3AED;--pl:#EDE9FE;
+  --g50:#F8FAFC;--g100:#F1F5F9;--g200:#E2E8F0;
+  --g5:#475569;--g7:#334155;--g8:#1E293B;
+  --r:14px;--rs:10px;
+  --sh:0 4px 20px rgba(37,99,235,.09);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Segoe UI','Microsoft JhengHei','PingFang TC',Arial,sans-serif;
+  font-size:17px;background:var(--g50);color:var(--g8);
+  overflow:hidden;height:100vh;
+}
+
+/* ── LOGIN ───────────────────────────────── */
+#login{
+  position:fixed;inset:0;z-index:1000;
+  background:linear-gradient(135deg,#EFF6FF 0%,#F0FDF4 60%,#FFF7ED 100%);
+  display:flex;align-items:center;justify-content:center;
+}
+.login-card{
+  background:#fff;border-radius:24px;padding:40px 44px;
+  box-shadow:0 16px 60px rgba(37,99,235,.16);
+  text-align:center;width:380px;
+  animation:fadeUp .5s ease;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.login-char{width:160px;margin-bottom:16px;filter:drop-shadow(0 8px 20px rgba(37,99,235,.2));}
+.login-card h1{font-size:1.3rem;font-weight:800;color:var(--g8);margin-bottom:6px;}
+.login-card p{font-size:.92rem;color:var(--g5);margin-bottom:22px;}
+.pwd-wrap{
+  display:flex;border:2px solid var(--g200);border-radius:var(--rs);
+  overflow:hidden;margin-bottom:10px;transition:.2s;
+}
+.pwd-wrap:focus-within{border-color:var(--blue);}
+.pwd-wrap input{
+  flex:1;padding:12px 14px;border:none;outline:none;
+  font-size:1rem;font-family:inherit;background:transparent;
+}
+.pwd-wrap button{
+  background:none;border:none;padding:0 14px;cursor:pointer;
+  font-size:1.1rem;color:var(--g5);
+}
+.login-err{
+  display:none;color:var(--red);font-size:.85rem;
+  margin-bottom:10px;
+}
+.login-btn{
+  width:100%;padding:13px;background:linear-gradient(135deg,var(--blue),var(--bd));
+  color:#fff;border:none;border-radius:var(--rs);font-size:1rem;
+  font-weight:700;cursor:pointer;transition:.2s;font-family:inherit;
+}
+.login-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(37,99,235,.3);}
+
+/* ── APP ─────────────────────────────────── */
+#app{display:none;height:100vh;}
+
+/* ── TOPBAR ──────────────────────────────── */
+.topbar{
+  position:fixed;top:0;left:0;right:0;z-index:200;height:56px;
+  background:rgba(255,255,255,.97);backdrop-filter:blur(14px);
+  border-bottom:2px solid var(--bl);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 60px;box-shadow:0 2px 16px rgba(37,99,235,.08);
+}
+.logo{
+  font-size:1.05rem;font-weight:800;color:var(--blue);
+  display:flex;align-items:center;gap:10px;letter-spacing:-.3px;
+}
+.logo-badge{
+  background:linear-gradient(135deg,var(--blue),var(--bd));
+  color:#fff;padding:4px 10px;border-radius:8px;
+  font-size:.72rem;font-weight:700;letter-spacing:.5px;white-space:nowrap;
+}
+.logo-text{display:flex;flex-direction:column;line-height:1.2;}
+.logo-text small{font-size:.68rem;font-weight:500;color:var(--g5);letter-spacing:.3px;}
+.nav-tabs{display:flex;gap:4px;}
+.nav-tabs button{
+  background:none;border:none;cursor:pointer;font-family:inherit;
+  font-size:.85rem;font-weight:600;color:var(--g5);
+  padding:6px 14px;border-radius:9px;transition:.2s;letter-spacing:-.2px;
+}
+.nav-tabs button:hover{background:var(--g100);color:var(--g8);}
+.nav-tabs button.on{background:var(--bl);color:var(--bd);}
+.prog-rail{position:fixed;top:56px;left:0;right:0;z-index:199;height:3px;background:var(--g200);}
+.prog{height:100%;background:linear-gradient(90deg,var(--blue),var(--green));transition:width .3s;}
+
+/* ── SLIDES ──────────────────────────────── */
+.slides{position:fixed;top:56px;left:0;right:0;bottom:0;overflow:hidden;}
+.slide{
+  position:absolute;top:0;left:0;width:100%;height:100%;
+  overflow-y:auto;overflow-x:hidden;
+  opacity:0;pointer-events:none;
+  transform:translateX(50px);
+  transition:opacity .38s,transform .38s;
+}
+.slide.active{opacity:1;pointer-events:all;transform:translateX(0);}
+.slide.prev{opacity:0;transform:translateX(-50px);}
+
+/* ── SLIDE ILLUSTRATION (floating, no layout impact) ── */
+.illo{
+  position:absolute;top:22px;right:22px;z-index:5;
+  pointer-events:none;
+}
+.illo-circle{
+  width:96px;height:96px;border-radius:50%;
+  background:#fff;box-shadow:0 6px 24px rgba(0,0,0,.1);
+  display:flex;align-items:center;justify-content:center;
+  font-size:3rem;animation:floatIllo 4s ease-in-out infinite;
+}
+.illo-ring{
+  position:absolute;inset:-8px;border-radius:50%;
+  border:2.5px dashed var(--bl);
+  animation:spin 10s linear infinite;
+}
+@keyframes floatIllo{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── SLIDE WRAP (full width content) ────── */
+.wrap{
+  max-width:960px;margin:0 auto;
+  padding:28px 60px 90px;
+  position:relative;
+}
+
+/* ── SLIDE HEADER ────────────────────────── */
+.part-tag{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:5px 16px;border-radius:99px;
+  font-size:.8rem;font-weight:700;letter-spacing:1px;
+  margin-bottom:10px;
+}
+.part-tag.b{background:var(--bl);color:var(--bd);}
+.part-tag.g{background:var(--gl);color:var(--gd);}
+.part-tag.o{background:var(--ol);color:var(--od);}
+.part-tag.p{background:var(--pl);color:var(--purple);}
+.ch-num{font-size:.78rem;font-weight:600;letter-spacing:2px;color:var(--blue);margin-bottom:6px;}
+.ch-title{
+  font-size:1.85rem;font-weight:800;color:var(--g8);
+  margin-bottom:20px;line-height:1.25;
+  display:flex;align-items:center;gap:10px;
+}
+.ch-icon{
+  width:44px;height:44px;border-radius:12px;background:var(--bl);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.4rem;flex-shrink:0;
+}
+.ch-icon.g{background:var(--gl);}
+.ch-icon.o{background:var(--ol);}
+.ch-icon.p{background:var(--pl);}
+
+/* ── CARDS ───────────────────────────────── */
+.card{
+  background:#fff;border-radius:var(--r);padding:20px 24px;
+  box-shadow:var(--sh);margin-bottom:16px;
+  border:1px solid var(--g200);
+}
+.card.b{border-top:4px solid var(--blue);}
+.card.g{border-top:4px solid var(--green);}
+.card.o{border-top:4px solid var(--orange);}
+.card.r{border-top:4px solid var(--red);}
+.card h4{font-size:1rem;font-weight:700;margin-bottom:10px;}
+.card p{font-size:.95rem;color:var(--g7);line-height:1.7;}
+.card h4.bc{color:var(--bd);}
+.card h4.gc{color:var(--gd);}
+.card h4.oc{color:var(--od);}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+.grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:16px;}
+
+.ic{border-radius:var(--rs);padding:16px 18px;border-left:4px solid var(--blue);background:var(--bl);}
+.ic.g{background:var(--gl);border-left-color:var(--green);}
+.ic.o{background:var(--ol);border-left-color:var(--orange);}
+.ic.r{background:var(--rl);border-left-color:var(--red);}
+.ic h4{font-size:.95rem;font-weight:700;margin-bottom:6px;}
+.ic p{font-size:.88rem;color:var(--g7);}
+
+/* ── TABLES ──────────────────────────────── */
+.tw{overflow-x:auto;margin:12px 0;border-radius:var(--rs);box-shadow:var(--sh);}
+table{width:100%;border-collapse:collapse;background:#fff;}
+thead tr{background:linear-gradient(90deg,var(--blue),var(--bd));}
+thead th{color:#fff;padding:11px 14px;font-size:.9rem;font-weight:600;text-align:left;}
+tbody tr{border-bottom:1px solid var(--g200);}
+tbody tr:nth-child(even){background:var(--g50);}
+tbody tr:hover{background:var(--bl);}
+tbody td{padding:10px 14px;font-size:.92rem;color:var(--g7);}
+.bd{display:inline-block;padding:3px 10px;border-radius:99px;font-size:.8rem;font-weight:600;}
+.bd.pass{background:var(--gl);color:var(--gd);}
+.bd.fail{background:var(--rl);color:#991B1B;}
+.bd.void{background:var(--g200);color:var(--g5);}
+.bd.bl{background:var(--bl);color:var(--bd);}
+.bd.or{background:var(--ol);color:var(--od);}
+
+/* ── HIGHLIGHT ───────────────────────────── */
+.hl{
+  border-left:5px solid var(--blue);border-radius:0 var(--rs) var(--rs) 0;
+  padding:14px 18px;margin:14px 0;font-size:.95rem;color:var(--g7);
+  background:linear-gradient(135deg,var(--bl),#EFF6FF);line-height:1.7;
+}
+.hl.g{background:linear-gradient(135deg,var(--gl),#F0FDF4);border-left-color:var(--green);}
+.hl.o{background:linear-gradient(135deg,var(--ol),#FFFBEB);border-left-color:var(--orange);}
+.hl strong{color:var(--bd);}
+.hl.g strong{color:var(--gd);}
+
+/* ── LIST ────────────────────────────────── */
+.cl{list-style:none;padding:0;}
+.cl li{
+  padding:7px 0 7px 26px;position:relative;
+  font-size:.93rem;color:var(--g7);
+  border-bottom:1px solid var(--g100);line-height:1.6;
+}
+.cl li:last-child{border-bottom:none;}
+.cl li::before{content:'✓';position:absolute;left:0;color:var(--green);font-weight:700;}
+.cl li.w::before{content:'⚠';color:var(--orange);}
+.cl li.d::before{content:'✗';color:var(--red);}
+
+/* ── FLOW ────────────────────────────────── */
+.flow-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:14px 0;}
+.fb{
+  background:var(--bl);border:2px solid var(--blue);border-radius:var(--rs);
+  padding:9px 18px;font-size:.9rem;font-weight:600;color:var(--bd);
+  white-space:nowrap;
+}
+.fb.g{background:var(--gl);border-color:var(--green);color:var(--gd);}
+.fb.o{background:var(--ol);border-color:var(--orange);color:var(--od);}
+.fb.r{background:var(--rl);border-color:var(--red);color:#991B1B;}
+.farr{color:var(--g5);font-size:1.2rem;padding:0 2px;}
+
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:14px 0;}
+.fgb{
+  background:#fff;border:2px solid var(--bl);border-radius:var(--rs);
+  padding:12px 10px;text-align:center;font-size:.92rem;color:var(--g7);
+  box-shadow:var(--sh);
+}
+.fgb span{font-size:1.6rem;display:block;margin-bottom:6px;}
+
+/* ── TRACE CHAIN ─────────────────────────── */
+.chain{display:flex;align-items:center;gap:0;flex-wrap:wrap;margin:16px 0;}
+.chbox{
+  background:#fff;border:2px solid var(--bl);border-radius:var(--rs);
+  padding:10px 18px;font-size:.9rem;font-weight:600;color:var(--bd);
+  text-align:center;line-height:1.4;
+}
+.chbox.pri{background:var(--blue);color:#fff;border-color:var(--blue);}
+.charr{font-size:1.3rem;color:var(--g5);padding:0 8px;}
+
+/* ── KPI ─────────────────────────────────── */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:14px 0;}
+.kpi{
+  background:#fff;border-radius:var(--r);padding:20px;
+  text-align:center;box-shadow:var(--sh);border-bottom:4px solid var(--blue);
+}
+.kpi.g{border-bottom-color:var(--green);}
+.kpi.o{border-bottom-color:var(--orange);}
+.kpi.r{border-bottom-color:var(--red);}
+.kpi-v{font-size:1.8rem;font-weight:800;color:var(--blue);margin-bottom:6px;}
+.kpi.g .kpi-v{color:var(--gd);}
+.kpi.o .kpi-v{color:var(--od);}
+.kpi.r .kpi-v{color:#991B1B;}
+.kpi-l{font-size:.85rem;color:var(--g5);font-weight:600;}
+
+/* ── HERO SLIDE ──────────────────────────── */
+.hero-slide{
+  background:linear-gradient(135deg,#EFF6FF 0%,#F0FDF4 55%,#FFF7ED 100%);
+}
+.hero-inner{
+  display:flex;align-items:center;gap:0;
+  min-height:calc(100vh - 50px);
+  max-width:1000px;margin:0 auto;padding:40px 60px;
+}
+.hero-text{flex:1;padding-right:20px;}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--bl);color:var(--bd);
+  padding:6px 16px;border-radius:99px;font-size:.82rem;font-weight:700;
+  margin-bottom:18px;
+}
+.hero-title{font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:800;line-height:1.2;margin-bottom:12px;}
+.hero-title em{font-style:normal;color:var(--blue);}
+.hero-sub{font-size:1rem;color:var(--g5);margin-bottom:24px;line-height:1.7;}
+.stat-row{display:flex;gap:12px;flex-wrap:wrap;}
+.stat-box{
+  background:#fff;border-radius:var(--rs);padding:12px 18px;
+  box-shadow:var(--sh);border-left:4px solid var(--blue);
+  font-size:.9rem;color:var(--g7);
+}
+.stat-box strong{display:block;font-size:1.2rem;color:var(--blue);font-weight:800;}
+.stat-box.g{border-left-color:var(--green);}
+.stat-box.g strong{color:var(--gd);}
+.stat-box.o{border-left-color:var(--orange);}
+.stat-box.o strong{color:var(--od);}
+.start-hint{margin-top:18px;font-size:.85rem;color:var(--g5);}
+.hero-char-col{
+  flex:0 0 240px;display:flex;flex-direction:column;align-items:center;
+}
+.hero-char-col img{
+  width:220px;filter:drop-shadow(0 14px 36px rgba(37,99,235,.2));
+  animation:float 4s ease-in-out infinite;
+}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+.bubble{
+  background:#fff;border:2px solid var(--bl);border-radius:var(--rs);
+  padding:10px 14px;font-size:.85rem;color:var(--g7);
+  text-align:center;max-width:200px;margin-top:14px;
+  box-shadow:var(--sh);position:relative;line-height:1.5;
+}
+.bubble::before{
+  content:'';position:absolute;top:-10px;left:50%;transform:translateX(-50%);
+  border:5px solid transparent;border-bottom-color:var(--bl);
+}
+.bubble::after{
+  content:'';position:absolute;top:-7px;left:50%;transform:translateX(-50%);
+  border:5px solid transparent;border-bottom-color:#fff;
+}
+
+/* ── CONCLUSION SLIDE ───────────────────── */
+.conc-slide{background:linear-gradient(135deg,var(--blue) 0%,var(--bd) 55%,var(--gd) 100%);}
+.conc-inner{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;min-height:calc(100vh - 50px);padding:40px 60px;color:#fff;
+}
+.conc-char{
+  width:170px;filter:drop-shadow(0 10px 28px rgba(0,0,0,.25));
+  animation:cclap 1.5s ease-in-out infinite;margin-bottom:20px;
+}
+@keyframes cclap{0%,100%{transform:scale(1) rotate(0)}25%{transform:scale(1.05) rotate(3deg)}75%{transform:scale(1.05) rotate(-3deg)}}
+.conc-inner h2{font-size:2rem;font-weight:800;margin-bottom:10px;}
+.conc-inner>p{font-size:1rem;opacity:.9;margin-bottom:22px;}
+.conc-pts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:22px;}
+.conc-pt{background:rgba(255,255,255,.18);border-radius:var(--rs);padding:10px 18px;font-size:.92rem;}
+.conc-box{
+  background:rgba(255,255,255,.14);border-radius:var(--r);
+  padding:20px 28px;max-width:600px;
+}
+.conc-box p{font-size:.95rem;line-height:1.8;}
+
+/* ── NAV ARROWS ──────────────────────────── */
+.nav-arr{
+  position:fixed;top:50%;transform:translateY(-50%);z-index:300;
+  width:46px;height:46px;border-radius:50%;border:none;cursor:pointer;
+  background:#fff;box-shadow:0 4px 18px rgba(37,99,235,.2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.15rem;color:var(--bd);transition:.2s;
+}
+.nav-arr:hover{background:var(--blue);color:#fff;transform:translateY(-50%) scale(1.1);}
+.nav-arr:disabled{opacity:.2;cursor:not-allowed;pointer-events:none;}
+.nav-l{left:10px;}
+.nav-r{right:10px;}
+
+/* ── COUNTER ─────────────────────────────── */
+.counter{
+  position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:300;
+  display:flex;align-items:center;gap:10px;
+  background:rgba(255,255,255,.93);backdrop-filter:blur(8px);
+  padding:6px 16px;border-radius:99px;
+  box-shadow:0 2px 14px rgba(37,99,235,.12);
+  font-size:.8rem;color:var(--g7);font-weight:600;
+}
+.dots{display:flex;gap:5px;}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--g200);cursor:pointer;transition:.3s;}
+.dot.a{background:var(--blue);transform:scale(1.35);}
+
+/* ── CREDIT ──────────────────────────────── */
+.credit{
+  position:fixed;bottom:16px;right:16px;z-index:300;
+  font-size:.72rem;color:var(--g5);
+  background:rgba(255,255,255,.88);backdrop-filter:blur(6px);
+  padding:5px 12px;border-radius:99px;
+}
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN PAGE ══════════════════════════ -->
+<div id="login">
+  <div class="login-card">
+    <img src="assets/character.png" class="login-char" alt="Lingo">
+    <h1>ISO 9001 儀器校驗管理</h1>
+    <p>請輸入密碼以開始學習</p>
+    <div class="pwd-wrap">
+      <input type="password" id="pwd" placeholder="請輸入密碼" onkeydown="if(event.key==='Enter')doLogin()">
+      <button onclick="togglePwd()" id="eyeBtn">👁</button>
+    </div>
+    <div class="login-err" id="err">❌ 密碼錯誤，請重試</div>
+    <button class="login-btn" onclick="doLogin()">開始學習 →</button>
+  </div>
+</div>
+
+<!-- ══ MAIN APP ═════════════════════════════ -->
+<div id="app">
+
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-badge">ISO 9001</div>
+    <div class="logo-text">
+      儀器校驗管理
+      <small>教學互動課程</small>
+    </div>
+  </div>
+  <div class="nav-tabs">
+    <button onclick="goTo(0)">首頁</button>
+    <button onclick="goTo(1)">基礎概念</button>
+    <button onclick="goTo(4)">管理流程</button>
+    <button onclick="goTo(7)">實務執行</button>
+    <button onclick="goTo(12)">進階應用</button>
+    <button onclick="goTo(17)">結論</button>
+  </div>
+</div>
+<div class="prog-rail"><div class="prog" id="pb"></div></div>
+
+<button class="nav-arr nav-l" id="bL" onclick="nav(-1)">◀</button>
+<button class="nav-arr nav-r" id="bR" onclick="nav(1)">▶</button>
+<div class="counter"><div class="dots" id="dots"></div><span id="cnt">1 / 18</span></div>
+<div class="credit">Designed &amp; Developed by Lingo｜2026</div>
+
+<div class="slides" id="sw">
+
+<!-- ══ S0: HERO ══════════════════════════ -->
+<div class="slide hero-slide active" id="s0">
+  <div class="hero-inner">
+    <div class="hero-text">
+      <div class="hero-badge">📋 ISO 9001:2015 條文 7.1.5</div>
+      <h1 class="hero-title"><em>儀器校驗管理</em><br>完整教學指南</h1>
+      <p class="hero-sub">從基礎概念到實務操作，全面掌握量測設備管理核心技能，輕鬆通過 ISO 稽核。</p>
+      <div class="stat-row">
+        <div class="stat-box"><strong>18</strong>張投影片</div>
+        <div class="stat-box g"><strong>7.1.5</strong>條文解析</div>
+        <div class="stat-box o"><strong>SOP</strong>流程範本</div>
+      </div>
+      <p class="start-hint">▶ 點選右側箭頭開始學習</p>
+    </div>
+    <div class="hero-char-col">
+      <img src="assets/character.png" alt="Lingo">
+      <div class="bubble">大家好！我是 Lingo，今天帶大家學習<br><strong>ISO 9001 儀器校驗管理</strong>！</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ S1: Ch1 什麼是儀器校驗管理 ═══════ -->
+<div class="slide" id="s1">
+  <div class="illo"><div class="illo-ring"></div><div class="illo-circle">🔬</div></div>
+  <div class="wrap">
+    <div class="part-tag b">PART 01　基礎概念</div>
+    <div class="ch-num">CHAPTER 01</div>
+    <h2 class="ch-title"><div class="ch-icon">📋</div>什麼是儀器校驗管理？</h2>
+    <div class="hl">量測設備是否準確，<strong>直接影響產品品質、檢驗結果與客戶信任</strong>。ISO 9001 要求企業建立完整儀器管理制度。</div>
+    <div class="grid2">
+      <div class="ic"><h4>📋 儀器管理制度</h4><p>建立設備清單與管理規範，確保每台儀器有明確負責人與保管流程</p></div>
+      <div class="ic g"><h4>🔄 校驗（Calibration）流程</h4><p>建立定期校驗機制，確保量測結果準確可靠，避免產品因誤差流出</p></div>
+      <div class="ic o"><h4>📊 定期追蹤與紀錄</h4><p>建立追蹤機制與紀錄系統，每台儀器的校驗狀態隨時透明可查</p></div>
+      <div class="ic r"><h4>⚠️ 異常處理機制</h4><p>建立標準異常處理流程，發現問題時能快速應對並降低品質風險</p></div>
+    </div>
+    <div class="card b">
+      <h4 class="bc">🎯 管理的核心目的</h4>
+      <p>確保所有量測結果都是<strong>可信、可追溯、可證明的</strong>，以維護客戶信任與整體品質穩定性。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ S2: Ch2 ISO條文 ═══════════════════ -->
+<div class="slide" id="s2">
+  <div class="illo"><div class="illo-ring" style="border-color:var(--gl)"></div><div class="illo-circle">📖</div></div>
+  <div class="wrap">
+    <div class="ch-num">CHAPTER 02</div>
+    <h2 class="ch-title"><div class="ch-icon g">📖</div>ISO 9001 相關條文</h2>
+    <div class="hl g"><strong>ISO 9001:2015 條文 7.1.5 — 監視與量測資源</strong><br>企業必須提供適合的量測設備、確保有效結果、維持設備準確性，並建立校驗與驗證制度。</div>
+    <div class="tw">
+      <table>
+        <thead><tr><th>條文編號</th><th>重點項目</th><th>要求說明</th><th>層級</th></tr></thead>
+        <tbody>
+          <tr><td><strong>7.1.5.1</strong></td><td>一般要求</td><td>設備需適合用途，能提供有效量測結果</td><td><span class="bd bl">基本</span></td></tr>
+          <tr><td><strong>7.1.5.2</strong></td><td>量測追溯性</td><td>校驗需可追溯至國家或國際標準</td><td><span class="bd bl">重要</span></td></tr>
+          <tr><td><strong>7.1.5.2 a</strong></td><td>定期校驗</td><td>必須有明確的校驗週期與計畫</td><td><span class="bd pass">必要</span></td></tr>
+          <tr><td><strong>7.1.5.2 b</strong></td><td>標示狀態</td><td>儀器上需貼有清楚的校驗狀態標籤</td><td><span class="bd pass">必要</span></td></tr>
+          <tr><td><strong>7.1.5.2 c</strong></td><td>防止調整</td><td>避免未授權的人為調整造成誤差</td><td><span class="bd pass">必要</span></td></tr>
+          <tr><td><strong>7.1.5.2 d</strong></td><td>防止損壞</td><td>妥善保存，避免環境因素影響量測精度</td><td><span class="bd pass">必要</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="hl">📌 稽核員必查：<strong>有無校驗計畫、有無有效標籤、有無校驗紀錄</strong>，三項缺一不可！</div>
+  </div>
+</div>
+
+<!-- ══ S3: Ch3 校驗定義 ══════════════════ -->
+<div class="slide" id="s3">
+  <div class="illo"><div class="illo-ring" style="border-color:var(--ol)"></div><div class="illo-circle">⚖️</div></div>
+  <div class="wrap">
+    <div class="ch-num">CHAPTER 03</div>
+    <h2 class="ch-title"><div class="ch-icon o">🎯</div>儀器校驗是什麼？</h2>
+    <div class="card b">
+      <h4 class="bc" style="font-size:1.05rem;">📌 Calibration（校驗）的定義</h4>
+      <p style="font-size:1.05rem;margin-top:6px;">「<strong>將儀器與標準器比較，確認誤差是否在允許範圍內</strong>」</p>
+    </div>
+    <p style="margin-bottom:14px;color:var(--g5);">以下設備均需要定期進行校驗：</p>
+    <div class="fgrid">
+      <div class="fgb"><span>🔧</span>游標卡尺</div>
+      <div class="fgb"><span>⚖️</span>電子秤</div>
+      <div class="fgb"><span>🌡️</span>溫度計</div>
+      <div class="fgb"><span>💨</span>壓力計</div>
+      <div class="fgb"><span>📐</span>三次元量測</div>
+      <div class="fgb"><span>🔩</span>扭力計</div>
+    </div>
+    <div class="tw">
+      <table>
+        <thead><tr><th>英文術語</th><th>中文</th><th>說明</th><th>是否比對標準器</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Calibration</strong></td><td>校驗</td><td>與標準器比較，確認誤差範圍</td><td><span class="bd pass">是</span></td></tr>
+          <tr><td><strong>Verification</strong></td><td>驗證</td><td>確認設備符合規格要求</td><td><span class="bd bl">部分</span></td></tr>
+          <tr><td><strong>Maintenance</strong></td><td>保養</td><td>維持設備正常運作狀態</td><td><span class="bd void">否</span></td></tr>
+          <tr><td><strong>Adjustment</strong></td><td>調整</td><td>修正偏差，使設備回到準確狀態</td><td><span class="bd bl">校後執行</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ S4: Ch4-5 管理流程 ════════════════ -->
+<div class="slide" id="s4">
+  <div class="illo"><div class="illo-ring" style="border-color:var(--gl)"></div><div class="illo-circle">🔄</div></div>
+  <div class="wrap">
+    <div class="part-tag g">PART 02　管理流程</div>
+    <div class="ch-num">CHAPTER 04 — 05</div>
+    <h2 class="ch-title"><div class="ch-icon g">🔄</div>儀器管理標準流程</h2>
+    <p style="margin-bottom:16px;color:var(--g5);">儀器從購入到日常管理，需遵循以下標準化流程，每個步驟都需要留下紀錄：</p>
+    <div class="flow-row">
+      <div class="fb">📦 儀器購入</div><div class="farr">→</div>
+      <div class="fb">📋 建立清單</div><div class="farr">→</div>
+      <div class="fb g">🏷️ 編號管理</div><div class="farr">→</div>
+      <div class="fb g">📅 制定週期</div><div class="farr">→</div>
+      <div class="fb">🔬 執行校驗</div><div class="farr">→</div>
+      <div class="fb g">✅ 貼校驗標籤</div><div class="farr">→</div>
+      <div class="fb">📁 建立紀錄</div><div class="farr">→</div>
+      <div class="fb g">🔍 定期追蹤</div><div class="farr">→</div>
+      <div class="fb o">⚠️ 異常處理</div>
+    </div>
+    <div class="grid2" style="margin-top:16px;">
+      <div class="card g">
+        <h4 class="gc">💡 流程關鍵要點</h4>
+        <ul class="cl">
+          <li>購入後立即建檔，避免遺漏任何設備</li>
+          <li>唯一編號確保儀器可追溯性</li>
+          <li>校驗週期依風險與使用頻率制定</li>
+          <li>每次校驗後立即更新標籤與紀錄</li>
+          <li>異常立即停用並啟動 CAPA 流程</li>
+        </ul>
+      </div>
+      <div class="card b">
+        <h4 class="bc">📝 紀錄保存要求</h4>
+        <ul class="cl">
+          <li>所有校驗紀錄需妥善保存（建議 3 年以上）</li>
+          <li>電子紀錄需備份，避免資料遺失</li>
+          <li>紙本紀錄需防潮防損，易於查閱</li>
+          <li>異常紀錄需附上處理措施與結果</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ S5: Ch6-7 編號&清單 ══════════════ -->
+<div class="slide" id="s5">
+  <div class="illo"><div class="illo-ring" style="border-color:var(--bl)"></div><div class="illo-circle">🏷️</div></div>
+  <div class="wrap">
+    <div class="ch-num">CHAPTER 06 — 07</div>
+    <h2 class="ch-title"><div class="ch-icon">🏷️</div>儀器編號 &amp; 儀器清單</h2>
+    <div class="grid2" style="margin-bottom:16px;">
+      <div class="card b">
+        <h4 class="bc">🔢 建議編號格式</h4>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">
+          <div class="fb" style="font-size:.95rem;text-align:center;">QC - 2026 - 001</div>
+          <div class="fb g" style="font-size:.95rem;text-align:center;">ME - VER - 015</div>
+          <div class="fb o" style="font-size:.95rem;text-align:center;">LAB - TEMP - 003</div>
+        </div>
+        <div class="tw" style="margin-top:12px;">
+          <table><thead><tr><th>欄位</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>部門代碼</td><td>QC / QA / LAB</td></tr>
+            <tr><td>類型代號</td><td>TEMP / VER / MIC</td></tr>
+            <tr><td>流水號</td><td>001 ~ 999</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+      <div class="card g">
+        <h4 class="gc">📋 儀器清單必備欄位</h4>
+        <ul class="cl" style="margin-top:8px;">
+          <li>儀器名稱（例：游標卡尺）</li>
+          <li>儀器編號（唯一識別碼）</li>
+          <li>型號 / 廠牌</li>
+          <li>使用部門 / 負責人</li>
+          <li>校驗週期（3/6/12 個月）</li>
+          <li>上次校驗日期</li>
+          <li>下次校驗日期（到期追蹤）</li>
+          <li>目前狀態（使用中 / 停用）</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hl">💡 儀器清單是儀器管理的<strong>基礎台帳</strong>，稽核時必備，建議使用 Excel 或系統化管理。</div>
+  </div>
+</div>
+
+<!-- ══ S6: Ch8 校驗週期 ══════════════════ -->
+<div class="slide" id="s6">
+  <div class="illo"><div class="illo-ring" style="border-color:var(--ol)"></div><div class="illo-circle">📅</div></div>
+  <div class="wrap">
+    <div class="ch-num">CHAPTER 08</div>
+    <h2 class="ch-title"><div class="ch-icon o">📅</div>校驗週期如何制定？</h2>
+    <div class="tw" style="margin-bottom:16px;">
+      <table>
+        <thead><tr><th>儀器類型</th><th>建議校驗週期</th><th>風險等級</th><th>建議方式</th></tr></thead>
+        <tbody>
+          <tr><td>游標卡尺</td><td>6 ~ 12 個月</td><td><span class="bd bl">中</span></td><td>外校或內校</td></tr>
+          <tr><td>電子秤</td><td>6 個月</td><td><span class="bd bl">中</span></td><td>外校或內校</td></tr>
+          <tr><td>溫度計</td><td>1 年</td><td><span class="bd pass">低</span></td><td>內校可行</td></tr>
+          <tr><td>扭力計</td><td>6 個月</td><td><span class="bd fail">高</span></td><td>建議外校</td></tr>
+          <tr><td>壓力表</td><td>6 個月</td><td><span class="bd fail">高</span></td><td>建議外校</td></tr>
+          <tr><td>三次元量測儀</td><td>6 個月</td><td><span class="bd fail">高</span></td><td>外校（TAF 認證）</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card o">
+      <h4 class="oc">🤔 制定校驗週期的評估因素</h4>
+      <div class="grid3" style="margin-top:12px;gap:10px;">
+        <div class="ic o"><h4>📊 使用頻率</h4><p>使用越頻繁，校驗週期越短</p></div>
+        <div class="ic o"><h4>🎯 精度需求</h4><p>精度要求越高，越需頻繁校驗</p></div>
+        <div class="ic"><h4>🌡️ 使用環境</h4><p>惡劣環境（溫溼度大）縮短週期</p></div>
+        <div class="ic"><h4>📋 過去異常紀錄</h4><p>若常出現誤差，需縮短週期</p></div>
+        <div class="ic g"><h4>👥 客戶要求</h4><p>依客戶合約或規範要求執行</p></div>
+        <div class="ic g"><h4>⚖️ 法規要求</h4><p>特定行業有法規明確規定週期</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ S7: Ch9 外校vs內校 ════════════════ -->
+<div class="slide" id="s7">
+  <div class="illo"><div class="illo-ring" style="border-color:var(--gl)"></div><div class="illo-circle">🏛️</div></div>
+  <div class="wrap">
+    <div class="part-tag o">PART 03　實務執行</div>
+    <div class="ch-num">CHAPTER 09</div>
+    <h2 class="ch-title"><div class="ch-icon o">🔭</div>外校 vs 內校</h2>
+    <div class="grid2">
+      <div class="card b">
+        <h4 class="bc">🏛️ 外校（External Calibration）</h4>
+        <p style="margin-bottom:12px;color:var(--g5);font-size:.88rem;">由外部 TAF 認可合格實驗室執行</p>
+        <ul class="cl">
+          <li>公信力高，具正式校驗證書</li>
+          <li>可追溯至國家 / 國際標準</li>
+          <li>適合高精度與安全關鍵儀器</li>
+          <li class="w">成本較高，需預算規劃</li>
+          <li class="w">校驗時間較長，需備用儀器</li>
+        </ul>
+      </div>
+      <div class="card g">
+        <h4 class="gc">🏭 內校（Internal Calibration）</h4>
+        <p style="margin-bottom:12px;color:var(--g5);font-size:.88rem;">由公司內部合格人員執行</p>
+        <ul class="cl">
+          <li>成本低，靈活快速</li>
+          <li>適合低精度一般輔助儀器</li>
+          <li class="w">必須具備合格標準器</li>
+          <li class="w">必須有完整校驗 SOP</li>
+          <li class="w">必須有人員訓練與能力驗證紀錄</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hl g">💡 <strong>選擇建議：</strong>高精度 / 安全相關 / 客戶指定 → <strong>外校</strong>；一般工具 / 輔助量測 → <strong>內校</strong>（需符合全部條件）</div>
+  </div>
+</div>
+
+<!-- ══ S8: Ch10 校驗標籤 ═════════════════ -->
+<div class="slide" id="s8">
+  <div class="illo"><div class="illo-ring" style="border-color:var(--ol)"></div><div class="illo-circle">🔖</div></div>
+  <div class="wrap">
+    <div class="ch-num">CHAPTER 10</div>
+    <h2 class="ch-title"><div class="ch-icon o">🏷️</div>校驗標籤管理</h2>
+    <div class="grid2">
+      <div class="card o">
+        <h4 class="oc">📌 標籤必備內容範例</h4>
+        <div style="background:#fff;border:2px solid var(--orange);border-radius:10px;padding:18px;margin-top:10px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:.95rem;">
+            <div><strong>儀器編號</strong><br>QC-001</div>
+            <div><strong>校驗日期</strong><br>2026/05/01</div>
+            <div><strong>下次校驗</strong><br>2027/05/01</div>
+            <div><strong>校驗狀態</strong><br><span class="bd pass">PASS</span></div>
+            <div style="grid-column:span 2"><strong>校驗人員</strong>：Lingo</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h4>🚦 三種校驗狀態說明</h4>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;">
+          <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--gl);border-radius:8px;">
+            <span class="bd pass" style="font-size:.95rem;">PASS</span>
+            <span>校驗通過，可正常使用</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--rl);border-radius:8px;">
+            <span class="bd fail" style="font-size:.95rem;">FAIL</span>
+            <span>校驗失敗，禁止使用，立即隔離</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--g100);border-radius:8px;">
+            <span class="bd void" style="font-size:.95rem;">VOID</span>
+            <span>已作廢或停用，不可使用</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="hl o">⚠️ <strong>重要：</strong>沒有標籤或標籤不清楚的儀器，稽核員會直接開立缺失！請確保每台儀器標籤清晰可讀。</div>
+  </div>
+</div>
+
+<!-- ══ S9: Ch11 量測追溯性 ══════════════ -->
+<div class="slide" id="s9">
+  <div class="illo"><div class="illo-ring" style="border-color:var(--bl)"></div><div class="illo-circle">🔗</div></div>
+  <div class="wrap">
+    <div class="ch-num">CHAPTER 11</div>
+    <h2 class="ch-title"><div class="ch-icon">🔗</div>量測追溯性（Traceability）</h2>
+    <div class="hl">ISO 9001 強調：<strong>儀器校驗結果需可追溯至國家或國際標準</strong>，形成完整且無缺口的追溯鏈。</div>
+    <div class="chain" style="margin:20px 0;">
+      <div class="chbox pri">🏭 公司儀器<br><small style="opacity:.8">日常使用</small></div>
+      <div class="charr">→</div>
+      <div class="chbox">🏛️ 校驗實驗室<br><small>TAF 認證</small></div>
+      <div class="charr">→</div>
+      <div class="chbox">🇹🇼 國家標準<br><small>NML / ITRI</small></div>
+      <div class="charr">→</div>
+      <div class="chbox">🌍 國際標準<br><small>SI 單位系統</small></div>
+    </div>
+    <div class="grid2">
+      <div class="ic">
+        <h4>📜 校驗證書必備項目</h4>
+        <ul class="cl" style="margin-top:8px;">
+          <li>追溯性聲明（明確標示追溯標準）</li>
+          <li>量測不確定度</li>
+          <li>校驗結果與判定</li>
+          <li>校驗日期與有效期限</li>
+        </ul>
+      </div>
+      <div class="ic g">
+        <h4>🏛️ 如何確保追溯性？</h4>
+        <ul class="cl" style="margin-top:8px;">
+          <li>選擇 TAF 認可實驗室進行外校</li>
+          <li>保存完整校驗證書</li>
+          <li>內校時需有可追溯的標準器</li>
+          <li>標準器也需定期送外校</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ S10: Ch12 異常處理 ════════════════ -->
+<div class="slide" id="s10">
+  <div class="illo"><div class="illo-ring" style="border-color:var(--rl)"></div><div class="illo-circle">🚨</div></div>
+  <div class="wrap">
+    <div class="ch-num">CHAPTER 12</div>
+    <h2 class="ch-title"><div class="ch-icon o">🚨</div>校驗異常處理</h2>
+    <div class="tw" style="margin-bottom:16px;">
+      <table>
+        <thead><tr><th>異常類型</th><th>說明</th><th>風險等級</th><th>處理優先順序</th></tr></thead>
+        <tbody>
+          <tr><td>校驗逾期</td><td>超過有效校驗日期未校驗</td><td><span class="bd fail">高</span></td><td>立即安排補校</td></tr>
+          <tr><td>校驗失敗（FAIL）</td><td>誤差超出允許範圍</td><td><span class="bd fail">高</span></td><td>立即停用並評估影響</td></tr>
+          <tr><td>標籤脫落或損毀</td><td>校驗標籤遺失或無法辨識</td><td><span class="bd bl">中</span></td><td>確認後補貼或重校</td></tr>
+          <tr><td>設備物理損壞</td><td>儀器損壞無法正常使用</td><td><span class="bd fail">高</span></td><td>立即隔離，評估維修</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card o">
+      <h4 class="oc">🔄 異常處理標準流程</h4>
+      <div class="flow-row" style="margin-top:12px;">
+        <div class="fb o">🔍 發現異常</div><div class="farr">→</div>
+        <div class="fb r">⛔ 停止使用</div><div class="farr">→</div>
+        <div class="fb o">📦 隔離設備</div><div class="farr">→</div>
+        <div class="fb o">📊 評估影響產品</div><div class="farr">→</div>
+        <div class="fb g">🔬 重新校驗</div><div class="farr">→</div>
+        <div class="fb g">📋 CAPA 矯正措施</div><div class="farr">→</div>
+        <div class="fb">📁 紀錄保存</div>
+      </div>
+    </div>
+    <div class="hl o">⚠️ 發現校驗失敗時，<strong>需評估失效期間內使用此儀器量測的所有產品</strong>，必要時啟動不合格品管制。</div>
+  </div>
+</div>
+
+<!-- ══ S11: Ch13 稽核缺失 ════════════════ -->
+<div class="slide" id="s11">
+  <div class="illo"><div class="illo-ring" style="border-color:var(--rl)"></div><div class="illo-circle">📋</div></div>
+  <div class="wrap">
+    <div class="ch-num">CHAPTER 13</div>
+    <h2 class="ch-title"><div class="ch-icon r">⚠️</div>稽核常見缺失 TOP 5</h2>
+    <div class="tw">
+      <table>
+        <thead><tr><th>排名</th><th>常見問題</th><th>缺失等級</th><th>改善建議</th></tr></thead>
+        <tbody>
+          <tr><td>🥇</td><td>儀器逾期未校驗</td><td><span class="bd fail">重大缺失</span></td><td>建立到期自動提醒，提前 30 天預警</td></tr>
+          <tr><td>🥈</td><td>校驗紀錄不完整或遺失</td><td><span class="bd fail">重大缺失</span></td><td>每次校驗後立即填寫，妥善保存</td></tr>
+          <tr><td>🥉</td><td>標籤不清楚或脫落</td><td><span class="bd bl">輕微缺失</span></td><td>定期巡檢，損壞立即補貼</td></tr>
+          <tr><td>4️⃣</td><td>儀器找不到或遺失</td><td><span class="bd fail">重大缺失</span></td><td>建立位置管理表，每季實地盤點</td></tr>
+          <tr><td>5️⃣</td><td>異常無處理紀錄</td><td><span class="bd bl">輕微缺失</span></td><td>建立 CAPA 流程，確保每次異常有完整改善紀錄</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="hl o">📌 <strong>稽核準備黃金原則：</strong>文件齊全（SOP + 台帳 + 證書 + 紀錄）是通過稽核的最佳保障！</div>
+  </div>
+</div>
+
+<!-- ══ S12: Ch14 SOP ══════════════════════ -->
+<div class="slide" id="s12">
+  <div class="illo"><div class="illo-ring" style="border-color:var(--pl)"></div><div class="illo-circle">📝</div></div>
+  <div class="wrap">
+    <div class="part-tag p">PART 04　進階應用</div>
+    <div class="ch-num">CHAPTER 14</div>
+    <h2 class="ch-title"><div class="ch-icon p">📝</div>儀器校驗 SOP 範例</h2>
+    <div class="grid2" style="margin-bottom:14px;">
+      <div class="card b"><h4 class="bc">1️⃣ 目的</h4><p>確保公司量測設備的準確性與有效性，保障產品品質符合要求。</p></div>
+      <div class="card b"><h4 class="bc">2️⃣ 適用範圍</h4><p>適用於公司所有量測儀器、測試設備與相關標準器。</p></div>
+    </div>
+    <div class="tw" style="margin-bottom:14px;">
+      <table>
+        <thead><tr><th>3️⃣ 權責分工</th><th>單位</th><th>責任內容</th></tr></thead>
+        <tbody>
+          <tr><td>主管責任</td><td>QA 部門</td><td>儀器清單管理、校驗計畫追蹤、稽核應對</td></tr>
+          <tr><td>保管責任</td><td>使用單位</td><td>日常保管、異常回報、校驗前準備</td></tr>
+          <tr><td>執行責任</td><td>校驗人員</td><td>執行校驗作業、填寫紀錄、更新標籤</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card g">
+      <h4 class="gc">4️⃣ 作業流程</h4>
+      <ul class="cl" style="margin-top:8px;">
+        <li>建立完整儀器資料（型號、廠牌、精度規格）</li>
+        <li>依風險評估制定校驗週期（外校 or 內校）</li>
+        <li>依計畫執行校驗，取得校驗證書或紀錄</li>
+        <li>更新儀器台帳狀態與下次校驗日</li>
+        <li>若校驗失敗（FAIL），立即啟動異常處理流程</li>
+        <li>所有紀錄妥善保存，以供稽核查閱</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ══ S13: Ch15 校驗紀錄表 ═════════════ -->
+<div class="slide" id="s13">
+  <div class="illo"><div class="illo-ring" style="border-color:var(--gl)"></div><div class="illo-circle">📊</div></div>
+  <div class="wrap">
+    <div class="ch-num">CHAPTER 15</div>
+    <h2 class="ch-title"><div class="ch-icon g">📊</div>校驗紀錄表範例</h2>
+    <div class="tw" style="margin-bottom:16px;">
+      <table>
+        <thead><tr><th>儀器編號</th><th>儀器名稱</th><th>校驗日期</th><th>下次校驗日</th><th>校驗結果</th><th>校驗人員</th></tr></thead>
+        <tbody>
+          <tr><td><strong>QC-001</strong></td><td>游標卡尺</td><td>2026/05/01</td><td>2027/05/01</td><td><span class="bd pass">PASS</span></td><td>王小明</td></tr>
+          <tr><td><strong>QA-003</strong></td><td>溫度計</td><td>2026/05/03</td><td>2027/05/03</td><td><span class="bd pass">PASS</span></td><td>陳小華</td></tr>
+          <tr><td><strong>LAB-005</strong></td><td>壓力表</td><td>2026/04/15</td><td>2026/10/15</td><td><span class="bd fail">FAIL</span></td><td>李大勇</td></tr>
+          <tr><td><strong>ME-012</strong></td><td>電子秤</td><td>2026/03/20</td><td>2026/09/20</td><td><span class="bd pass">PASS</span></td><td>張美玲</td></tr>
+          <tr><td><strong>QC-008</strong></td><td>扭力計</td><td>2026/05/10</td><td>2026/11/10</td><td><span class="bd pass">PASS</span></td><td>林志明</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="hl o">⚠️ <strong>LAB-005 壓力表校驗失敗</strong>，已啟動異常處理流程，相關受影響產品正在評估中，待重新校驗後恢復使用。</div>
+    <div class="card b" style="margin-top:12px;">
+      <h4 class="bc">📁 紀錄表管理要求</h4>
+      <ul class="cl" style="margin-top:8px;">
+        <li>校驗紀錄需保存至少 3 年（或依合約要求更長）</li>
+        <li>電子紀錄須備份，避免單點故障導致資料遺失</li>
+        <li>FAIL 紀錄必須附上完整的異常處理與矯正措施</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ══ S14: Ch16-17 Excel&技巧 ══════════ -->
+<div class="slide" id="s14">
+  <div class="illo"><div class="illo-ring" style="border-color:var(--pl)"></div><div class="illo-circle">💻</div></div>
+  <div class="wrap">
+    <div class="ch-num">CHAPTER 16 — 17</div>
+    <h2 class="ch-title"><div class="ch-icon p">💻</div>Excel 自動化 &amp; 實務管理技巧</h2>
+    <div class="grid3" style="margin-bottom:16px;">
+      <div class="ic g"><h4>⏰ 自動到期提醒</h4><p>設定條件格式，自動顯示 30 天內即將到期的儀器</p></div>
+      <div class="ic g"><h4>📊 校驗狀態儀表板</h4><p>用圖表一目了然呈現所有儀器的校驗狀態比例</p></div>
+      <div class="ic"><h4>📅 自動計算下次校驗日</h4><p>輸入校驗日期後，依週期自動計算下次校驗日期</p></div>
+      <div class="ic"><h4>🔍 篩選查詢功能</h4><p>依部門、設備類型、狀態快速篩選查詢</p></div>
+      <div class="ic o"><h4>📱 QR Code 整合</h4><p>每台儀器生成 QR Code，掃描即可查詢校驗狀態</p></div>
+    </div>
+    <div class="card b">
+      <h4 class="bc">🎯 四大實務管理技巧</h4>
+      <div class="grid2" style="margin-top:12px;gap:10px;">
+        <div style="padding:14px;background:var(--bl);border-radius:10px;">
+          <strong style="font-size:.95rem;">1️⃣ 月曆化校驗排程</strong>
+          <p style="font-size:.88rem;margin-top:6px;color:var(--g7);">建立每月校驗排程，分散校驗工作量，避免月底集中送校</p>
+        </div>
+        <div style="padding:14px;background:var(--bl);border-radius:10px;">
+          <strong style="font-size:.95rem;">2️⃣ 三色顏色管理</strong>
+          <p style="font-size:.88rem;margin-top:6px;color:var(--g7);">🟢 正常可用　🟡 即將到期（30天內）　🔴 已逾期禁用</p>
+        </div>
+        <div style="padding:14px;background:var(--bl);border-radius:10px;">
+          <strong style="font-size:.95rem;">3️⃣ 關鍵儀器備用</strong>
+          <p style="font-size:.88rem;margin-top:6px;color:var(--g7);">高使用率儀器備用一台，送外校期間不影響生產線</p>
+        </div>
+        <div style="padding:14px;background:var(--bl);border-radius:10px;">
+          <strong style="font-size:.95rem;">4️⃣ 每季實地盤點</strong>
+          <p style="font-size:.88rem;margin-top:6px;color:var(--g7);">每季盤點一次，確保儀器台帳與實際設備帳實相符</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ S15: Ch18 稽核應對 ════════════════ -->
+<div class="slide" id="s15">
+  <div class="illo"><div class="illo-ring" style="border-color:var(--gl)"></div><div class="illo-circle">🎤</div></div>
+  <div class="wrap">
+    <div class="ch-num">CHAPTER 18</div>
+    <h2 class="ch-title"><div class="ch-icon g">🎤</div>ISO 稽核應對技巧</h2>
+    <div class="grid2" style="margin-bottom:16px;">
+      <div class="card b">
+        <h4 class="bc">🔍 稽核員常問的問題</h4>
+        <ul class="cl" style="margin-top:10px;">
+          <li>如何確認儀器目前是否有效？</li>
+          <li>校驗週期是如何制定的？</li>
+          <li>儀器失效或校驗失敗如何處理？</li>
+          <li>是否具備量測追溯性？</li>
+          <li>如何避免校驗逾期？有無提醒機制？</li>
+          <li>內校的標準器是否有外校証書？</li>
+        </ul>
+      </div>
+      <div class="card g">
+        <h4 class="gc">📁 稽核時應備文件清單</h4>
+        <ul class="cl" style="margin-top:10px;">
+          <li>儀器校驗管理 SOP（含版本號、審核簽名）</li>
+          <li>儀器台帳（含全部儀器資訊）</li>
+          <li>外校校驗證書（TAF 認可）</li>
+          <li>校驗紀錄表（含 PASS/FAIL 結果）</li>
+          <li>異常改善紀錄（CAPA）</li>
+          <li>人員訓練紀錄（內校人員）</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hl g">💡 <strong>稽核黃金三步驟：</strong>①先說方法（展示 SOP）→ ②再拿憑證（提供紀錄）→ ③展示改善（說明 CAPA）。 文件齊全 + 說得清楚 = 稽核過關！</div>
+  </div>
+</div>
+
+<!-- ══ S16: Ch19 KPI ══════════════════════ -->
+<div class="slide" id="s16">
+  <div class="illo"><div class="illo-ring" style="border-color:var(--gl)"></div><div class="illo-circle">📈</div></div>
+  <div class="wrap">
+    <div class="ch-num">CHAPTER 19</div>
+    <h2 class="ch-title"><div class="ch-icon g">📈</div>儀器校驗管理 KPI 指標</h2>
+    <p style="margin-bottom:18px;color:var(--g5);">建議追蹤以下關鍵績效指標（KPI），每月統計、每季趨勢分析，持續改善管理品質：</p>
+    <div class="kpi-row">
+      <div class="kpi g"><div class="kpi-v">≥ 98%</div><div class="kpi-l">準時校驗率</div></div>
+      <div class="kpi r"><div class="kpi-v">≤ 1%</div><div class="kpi-l">逾期率</div></div>
+      <div class="kpi o"><div class="kpi-v">≤ 2%</div><div class="kpi-l">校驗失敗率</div></div>
+      <div class="kpi g"><div class="kpi-v">0%</div><div class="kpi-l">儀器遺失率</div></div>
+    </div>
+    <div class="card b" style="margin-top:4px;">
+      <h4 class="bc">📊 KPI 計算公式</h4>
+      <ul class="cl" style="margin-top:10px;">
+        <li><strong>準時校驗率</strong> = 準時校驗台數 ÷ 應校驗台數 × 100%</li>
+        <li><strong>逾期率</strong> = 逾期台數 ÷ 總儀器台數 × 100%</li>
+        <li><strong>校驗失敗率</strong> = 校驗失敗次數 ÷ 總校驗次數 × 100%</li>
+        <li><strong>儀器遺失率</strong> = 遺失台數 ÷ 總儀器台數 × 100%（目標 = 0）</li>
+      </ul>
+    </div>
+    <div class="hl g" style="margin-top:12px;">🏆 <strong>KPI 達標代表管理制度真的有效！</strong>建議每月在管理審查會議中報告，讓主管與跨部門同仁共同關注。</div>
+  </div>
+</div>
+
+<!-- ══ S17: CONCLUSION ═══════════════════ -->
+<div class="slide conc-slide" id="s17">
+  <div class="conc-inner">
+    <img src="assets/character.png" class="conc-char" alt="Lingo">
+    <h2>🎉 恭喜完成全部學習！</h2>
+    <p>ISO 9001 儀器校驗管理的六大核心重點，你都掌握了嗎？</p>
+    <div class="conc-pts">
+      <div class="conc-pt">📋 建立完整儀器清單</div>
+      <div class="conc-pt">📅 訂定合理校驗週期</div>
+      <div class="conc-pt">🔗 確保量測追溯性</div>
+      <div class="conc-pt">📁 保存完整校驗紀錄</div>
+      <div class="conc-pt">⚠️ 落實異常處理流程</div>
+      <div class="conc-pt">🚫 避免逾期與失效</div>
+    </div>
+    <div class="conc-box">
+      <p>做好儀器管理，有效提升<br>
+      <strong>品質穩定性 · 客戶信任度 · 稽核通過率 · 量測數據可信度</strong></p>
+    </div>
+  </div>
+</div>
+
+</div><!-- /slides -->
+</div><!-- /app -->
+
+<script>
+// ── LOGIN ─────────────────────────────────
+function togglePwd(){
+  const i=document.getElementById('pwd');
+  const b=document.getElementById('eyeBtn');
+  i.type=i.type==='password'?'text':'password';
+  b.textContent=i.type==='password'?'👁':'🙈';
+}
+function doLogin(){
+  const v=document.getElementById('pwd').value;
+  const err=document.getElementById('err');
+  if(v==='cal01'){
+    document.getElementById('login').style.display='none';
+    document.getElementById('app').style.display='block';
+    goTo(0);
+  } else {
+    err.style.display='block';
+    document.getElementById('pwd').value='';
+    document.getElementById('pwd').focus();
+    setTimeout(()=>err.style.display='none',3000);
+  }
+}
+
+// ── SLIDES ────────────────────────────────
+const slides=document.querySelectorAll('.slide');
+const total=slides.length;
+let cur=0;
+
+// Build dots
+const dotsEl=document.getElementById('dots');
+slides.forEach((_,i)=>{
+  const d=document.createElement('div');
+  d.className='dot'+(i===0?' a':'');
+  d.onclick=()=>goTo(i);
+  dotsEl.appendChild(d);
+});
+
+function goTo(n){
+  if(n<0||n>=total)return;
+  slides[cur].classList.remove('active');
+  slides[cur].classList.add('prev');
+  setTimeout(()=>{
+    slides.forEach(s=>s.classList.remove('prev'));
+  },420);
+  cur=n;
+  slides[cur].classList.remove('prev');
+  slides[cur].classList.add('active');
+  slides[cur].scrollTop=0;
+  // update UI
+  document.getElementById('cnt').textContent=(cur+1)+' / '+total;
+  document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('a',i===cur));
+  document.getElementById('pb').style.width=((cur/(total-1))*100)+'%';
+  document.getElementById('bL').disabled=cur===0;
+  document.getElementById('bR').disabled=cur===total-1;
+  // nav highlight
+  const partMap={0:'首頁',1:'基礎概念',2:'基礎概念',3:'基礎概念',4:'管理流程',5:'管理流程',6:'管理流程',7:'實務執行',8:'實務執行',9:'實務執行',10:'實務執行',11:'實務執行',12:'進階應用',13:'進階應用',14:'進階應用',15:'進階應用',16:'進階應用',17:'結論'};
+  document.querySelectorAll('.nav-tabs button').forEach(b=>b.classList.toggle('on',b.textContent===partMap[cur]));
+}
+function nav(d){goTo(cur+d);}
+
+// ── KEYBOARD ──────────────────────────────
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();nav(1);}
+  if(e.key==='ArrowLeft'){nav(-1);}
+});
+
+// ── TOUCH SWIPE ───────────────────────────
+let tx=0;
+document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;},{passive:true});
+document.addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-tx;
+  if(Math.abs(dx)>50)nav(dx<0?1:-1);
+},{passive:true});
+</script>
+</body>
+</html>
